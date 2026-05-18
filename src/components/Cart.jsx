@@ -4,10 +4,12 @@ import './Cart.css';
 export default function Cart({ cartItems, onRemoveFromCart, onCheckout, quoteHistory = [] }) {
   // 장바구니 총액 계산
   const totalPrice = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  // 장바구니 총 수량 계산
+  const totalItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <div className="cart-container card animate-fade-in" style={{ animationDelay: '0.1s' }}>
-      <h2 className="text-gradient">장바구니 및 결제</h2>
+      <h2 className="text-gradient">장바구니</h2>
       
       {cartItems.length === 0 ? (
         <div className="empty-cart">
@@ -41,7 +43,7 @@ export default function Cart({ cartItems, onRemoveFromCart, onCheckout, quoteHis
 
           <div className="cart-summary">
             <div className="total-row">
-              <span>최종 예상 총액</span>
+              <span>총 결제액</span>
               <span className="total-price text-gradient">{totalPrice.toLocaleString()} 원</span>
             </div>
 
@@ -54,7 +56,7 @@ export default function Cart({ cartItems, onRemoveFromCart, onCheckout, quoteHis
               className="btn btn-primary checkout-btn"
               onClick={onCheckout}
             >
-              견적서 복사하기 (총 {cartItems.length}건)
+              견적서 복사하기 (총 {totalItemCount}건)
             </button>
           </div>
         </>

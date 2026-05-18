@@ -7,49 +7,62 @@ function App() {
   const [cartItems, setCartItems] = useState([]);
   const [quoteHistory, setQuoteHistory] = useState([]); // 견적 복사 이력 상태 (최대 3개 유지)
 
-  // 장바구니에 상품 추가
-  const handleAddToCart = (product, targetType, quantity) => {
-    // 1. 현재 장바구니에 담긴 '동일 상품 & 동일 구매 대상'의 수량을 계산합니다.
-    const existingItemIndex = cartItems.findIndex(
-      item => item.product.id === product.id && item.targetType === targetType
-    );
-    const existingQuantity = existingItemIndex !== -1 ? cartItems[existingItemIndex].quantity : 0;
+  // 여러 상품 또는 단일 상품을 장바구니에 추가하는 핵심 배치 함수
+  const handleBatchAddToCart = (items, isBatch = true) => {
+    setCartItems(prev => {
+      let newCart = [...prev];
+      let limitAlertTriggered = false;
+      let exceededLimitDetails = [];
 
-    // 2. 이번에 담으려는 총 수량 (기존 장바구니 수량 + 새로 담을 수량)
-    const totalRequestedQuantity = existingQuantity + quantity;
+      items.forEach(({ product, targetType, quantity }) => {
+        if (quantity <= 0) return;
 
-    // 3. 해당 구매 대상의 구매 가능 제한 수량 가져오기
-    const limit = PURCHASE_LIMITS[targetType];
+        // 1. 현재 장바구니에서 동일 상품 & 동일 구매 대상의 수량을 계산
+        const existingItemIndex = newCart.findIndex(
+          item => item.product.id === product.id && item.targetType === targetType
+        );
+        const existingQuantity = existingItemIndex !== -1 ? newCart[existingItemIndex].quantity : 0;
+        const totalRequestedQuantity = existingQuantity + quantity;
+        const limit = PURCHASE_LIMITS[targetType];
 
-    // 4. 수량 제한 체크 (초과 시 경고창 띄우고 중단)
-    if (totalRequestedQuantity > limit) {
-      alert(`본인구매는 매달 1개, 가족구매는 매달 5개까지만 가능합니다.\n(현재 장바구니에 담긴 수량: ${existingQuantity}개, 추가 시도: ${quantity}개)`);
-      return; // 장바구니에 담지 않고 함수 종료
-    }
+        // 2. 수량 제한 체크
+        if (totalRequestedQuantity > limit) {
+          limitAlertTriggered = true;
+          exceededLimitDetails.push(`- ${product.name} (${targetType}구매: 장바구니에 이미 ${existingQuantity}개 담겨있음, 추가하려는 수량 ${quantity}개, 제한 ${limit}개)`);
+          return; // 이 상품은 추가하지 않음
+        }
 
-    // 5. 제한을 통과했다면 장바구니에 추가하거나 기존 항목 수량을 업데이트합니다.
-    if (existingItemIndex !== -1) {
-      // 이미 같은 항목이 장바구니에 있는 경우 수량만 합산
-      setCartItems(prev => {
-        const newCart = [...prev];
-        newCart[existingItemIndex] = {
-          ...newCart[existingItemIndex],
-          quantity: totalRequestedQuantity
-        };
-        return newCart;
+        // 3. 장바구니 업데이트
+        if (existingItemIndex !== -1) {
+          newCart[existingItemIndex] = {
+            ...newCart[existingItemIndex],
+            quantity: totalRequestedQuantity
+          };
+        } else {
+          const cartItemId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+          newCart.push({
+            cartItemId,
+            product,
+            targetType,
+            quantity,
+            price: product.prices[targetType]
+          });
+        }
       });
-    } else {
-      // 장바구니에 없는 새로운 항목인 경우 새로 추가
-      const cartItemId = Date.now().toString() + Math.random().toString(36).substr(2, 9); // 고유 ID 생성
-      const newItem = {
-        cartItemId,
-        product,
-        targetType,
-        quantity,
-        price: product.prices[targetType] // 선택한 대상에 맞는 단가 저장
-      };
-      setCartItems(prev => [...prev, newItem]);
-    }
+
+      if (limitAlertTriggered) {
+        alert(`일부 상품의 구매 한도가 초과되어 장바구니 담기에서 제외되었습니다:\n\n${exceededLimitDetails.join('\n')}`);
+      } else {
+        alert(isBatch ? "선택하신 모든 상품이 장바구니에 담겼습니다!" : "상품이 장바구니에 담겼습니다!");
+      }
+
+      return newCart;
+    });
+  };
+
+  // 단일 상품 장바구니 추가 (배치 함수로 위임)
+  const handleAddToCart = (product, targetType, quantity) => {
+    handleBatchAddToCart([{ product, targetType, quantity }], false);
   };
 
   // 장바구니에서 상품 삭제
@@ -77,10 +90,11 @@ function App() {
     const now = new Date();
     const timeString = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     
+    const totalItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
     const newHistoryItem = {
       id: Date.now().toString(),
       timeString: timeString,
-      summary: `총 ${cartItems.length}건, ${totalPrice.toLocaleString()}원 견적`,
+      summary: `총 ${totalItemCount}개, ${totalPrice.toLocaleString()}원 견적`,
       text: quoteText
     };
 
@@ -109,7 +123,7 @@ function App() {
 
       <main>
         {/* 상품 목록 컴포넌트 */}
-        <ProductList onAddToCart={handleAddToCart} />
+        <ProductList onAddToCart={handleAddToCart} onBatchAddToCart={handleBatchAddToCart} />
         
         {/* 장바구니 컴포넌트 */}
         <Cart 

@@ -2,14 +2,22 @@ import React, { useState } from 'react';
 import { PRODUCTS, TARGET_TYPES } from '../utils/constants';
 import './ProductList.css'; // 별도 스타일 분리 시
 
-export default function ProductList({ onAddToCart }) {
-  // 각 상품별로 선택된 '구매 유형'과 '수량'을 관리합니다.
+export default function ProductList({ onAddToCart, onBatchAddToCart }) {
+  // 각 상품별로 선택된 '구매 유형', '수량', '선택 여부'를 관리합니다.
   const [selections, setSelections] = useState(
     PRODUCTS.reduce((acc, product) => {
-      acc[product.id] = { targetType: TARGET_TYPES.SELF, quantity: 1 };
+      acc[product.id] = { targetType: TARGET_TYPES.SELF, quantity: 1, selected: true };
       return acc;
     }, {})
   );
+
+  // 상품 선택 상태(체크박스) 토글 핸들러
+  const handleToggleSelect = (productId) => {
+    setSelections(prev => ({
+      ...prev,
+      [productId]: { ...prev[productId], selected: !prev[productId].selected }
+    }));
+  };
 
   // 구매 유형 변경 핸들러
   const handleTargetChange = (productId, newTargetType) => {
@@ -31,6 +39,22 @@ export default function ProductList({ onAddToCart }) {
     });
   };
 
+  // 실시간으로 선택된 상품들의 합계 금액 및 총 수량 계산
+  const selectedTotal = PRODUCTS.reduce((sum, product) => {
+    const sel = selections[product.id];
+    if (!sel.selected) return sum;
+    const price = product.prices[sel.targetType];
+    return sum + (price * sel.quantity);
+  }, 0);
+
+  const selectedCount = PRODUCTS.reduce((sum, product) => {
+    const sel = selections[product.id];
+    if (!sel.selected) return sum;
+    return sum + sel.quantity;
+  }, 0);
+
+  const selectedKindCount = PRODUCTS.filter(p => selections[p.id].selected).length;
+
   return (
     <div className="product-list-container animate-fade-in">
       <h2 className="text-gradient">상품 목록</h2>
@@ -44,8 +68,24 @@ export default function ProductList({ onAddToCart }) {
           const currentPrice = product.prices[selection.targetType];
 
           return (
-            <div key={product.id} className="card product-card">
-              <h3>{product.name}</h3>
+            <div 
+              key={product.id} 
+              className="card product-card" 
+              style={{ 
+                opacity: selection.selected ? 1 : 0.6, 
+                transition: 'all 0.3s ease',
+                border: selection.selected ? '2px solid var(--color-primary)' : '1px solid var(--color-border)'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h3 style={{ margin: 0, fontSize: '1.2rem' }}>{product.name}</h3>
+                <input 
+                  type="checkbox" 
+                  checked={selection.selected} 
+                  onChange={() => handleToggleSelect(product.id)}
+                  style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: 'var(--color-primary)' }}
+                />
+              </div>
               
               <div className="product-options">
                 {/* 구매 대상 선택 드롭다운 */}
@@ -55,10 +95,11 @@ export default function ProductList({ onAddToCart }) {
                     className="select-input"
                     value={selection.targetType} 
                     onChange={(e) => handleTargetChange(product.id, e.target.value)}
+                    disabled={!selection.selected}
                   >
                     <option value={TARGET_TYPES.SELF}>본인구매 (월 1개 한정)</option>
                     <option value={TARGET_TYPES.FAMILY}>가족구매 (월 5개 한정)</option>
-                    <option value={TARGET_TYPES.ACQUAINTANCE}>지인구매 (제한없음)</option>
+                    <option value={TARGET_TYPES.ACQUAINTANCE}>지인 구매 (제한없음)</option>
                   </select>
                 </div>
 
@@ -75,7 +116,7 @@ export default function ProductList({ onAddToCart }) {
                     <button 
                       className="qty-btn" 
                       onClick={() => handleQuantityChange(product.id, -1)}
-                      disabled={selection.quantity <= 1}
+                      disabled={!selection.selected || selection.quantity <= 1}
                     >
                       -
                     </button>
@@ -84,26 +125,73 @@ export default function ProductList({ onAddToCart }) {
                       className="number-input qty-input"
                       value={selection.quantity} 
                       readOnly 
+                      disabled={!selection.selected}
                     />
                     <button 
                       className="qty-btn" 
                       onClick={() => handleQuantityChange(product.id, 1)}
+                      disabled={!selection.selected}
                     >
                       +
                     </button>
                   </div>
                 </div>
               </div>
-
+ 
               <button 
                 className="btn btn-primary add-to-cart-btn"
                 onClick={() => onAddToCart(product, selection.targetType, selection.quantity)}
+                disabled={!selection.selected}
               >
                 장바구니 담기
               </button>
             </div>
           );
         })}
+      </div>
+
+      {/* 실시간 합계 및 일괄 장바구니 담기 영역 */}
+      <div 
+        className="product-list-summary card" 
+        style={{ 
+          marginTop: '2rem', 
+          padding: '1.5rem', 
+          backgroundColor: 'var(--color-bg-secondary)', 
+          border: '1px solid var(--color-border)', 
+          borderRadius: '12px', 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          gap: '1rem',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: '500px', fontSize: '1.1rem', fontWeight: 'bold' }}>
+          <span>선택한 품목:</span>
+          <span>{selectedKindCount}종 (총 {selectedCount}개)</span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: '500px', fontSize: '1.4rem', fontWeight: 'bold' }}>
+          <span>실시간 예상 합계:</span>
+          <span className="text-gradient" style={{ fontSize: '1.6rem' }}>{selectedTotal.toLocaleString()}원</span>
+        </div>
+        <button 
+          className="btn btn-primary"
+          style={{ width: '100%', maxWidth: '500px', padding: '0.9rem 1.5rem', fontSize: '1.1rem', fontWeight: 'bold', borderRadius: '8px' }}
+          onClick={() => {
+            const itemsToAdd = PRODUCTS.filter(p => selections[p.id].selected).map(p => ({
+              product: p,
+              targetType: selections[p.id].targetType,
+              quantity: selections[p.id].quantity
+            }));
+            if (itemsToAdd.length === 0) {
+              alert("선택된 상품이 없습니다. 상품 우측의 체크박스를 선택해 주세요.");
+              return;
+            }
+            onBatchAddToCart(itemsToAdd);
+          }}
+        >
+          선택한 {selectedKindCount}종 상품 장바구니에 일괄 담기
+        </button>
       </div>
     </div>
   );
