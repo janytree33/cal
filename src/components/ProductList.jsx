@@ -3,27 +3,19 @@ import { PRODUCTS, TARGET_TYPES } from '../utils/constants';
 import './ProductList.css'; // 별도 스타일 분리 시
 
 export default function ProductList({ onAddToCart, onBatchAddToCart }) {
-  // 각 상품별로 선택된 '구매 유형', '수량', '선택 여부'를 관리합니다.
+  // 각 상품별로 선택된 '구매 유형', '수량'을 관리합니다. (수량은 0개부터 시작하며 체크박스 대신 수량 0개 여부로 선택 상태를 관리합니다.)
   const [selections, setSelections] = useState(
     PRODUCTS.reduce((acc, product) => {
-      acc[product.id] = { targetType: TARGET_TYPES.SELF, quantity: 1, selected: true };
+      acc[product.id] = { targetType: TARGET_TYPES.SELF, quantity: 0 };
       return acc;
     }, {})
   );
-
-  // 상품 선택 상태(체크박스) 토글 핸들러
-  const handleToggleSelect = (productId) => {
-    setSelections(prev => ({
-      ...prev,
-      [productId]: { ...prev[productId], selected: !prev[productId].selected }
-    }));
-  };
 
   // 구매 유형 변경 핸들러
   const handleTargetChange = (productId, newTargetType) => {
     setSelections(prev => ({
       ...prev,
-      [productId]: { ...prev[productId], targetType: newTargetType, quantity: 1 } // 대상 변경 시 수량 1로 초기화
+      [productId]: { ...prev[productId], targetType: newTargetType }
     }));
   };
 
@@ -31,7 +23,7 @@ export default function ProductList({ onAddToCart, onBatchAddToCart }) {
   const handleQuantityChange = (productId, delta) => {
     setSelections(prev => {
       const currentQty = prev[productId].quantity;
-      const newQty = Math.max(1, currentQty + delta); // 최소 수량 1개
+      const newQty = Math.max(0, currentQty + delta); // 최소 수량을 0개로 설정
       return {
         ...prev,
         [productId]: { ...prev[productId], quantity: newQty }
@@ -42,18 +34,16 @@ export default function ProductList({ onAddToCart, onBatchAddToCart }) {
   // 실시간으로 선택된 상품들의 합계 금액 및 총 수량 계산
   const selectedTotal = PRODUCTS.reduce((sum, product) => {
     const sel = selections[product.id];
-    if (!sel.selected) return sum;
     const price = product.prices[sel.targetType];
     return sum + (price * sel.quantity);
   }, 0);
 
   const selectedCount = PRODUCTS.reduce((sum, product) => {
     const sel = selections[product.id];
-    if (!sel.selected) return sum;
     return sum + sel.quantity;
   }, 0);
 
-  const selectedKindCount = PRODUCTS.filter(p => selections[p.id].selected).length;
+  const selectedKindCount = PRODUCTS.filter(p => selections[p.id].quantity > 0).length;
 
   return (
     <div className="product-list-container animate-fade-in">
@@ -72,19 +62,13 @@ export default function ProductList({ onAddToCart, onBatchAddToCart }) {
               key={product.id} 
               className="card product-card" 
               style={{ 
-                opacity: selection.selected ? 1 : 0.6, 
+                opacity: selection.quantity > 0 ? 1 : 0.65, 
                 transition: 'all 0.3s ease',
-                border: selection.selected ? '2px solid var(--color-primary)' : '1px solid var(--color-border)'
+                border: selection.quantity > 0 ? '2px solid var(--color-primary)' : '1px solid var(--color-border)'
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                 <h3 style={{ margin: 0, fontSize: '1.2rem' }}>{product.name}</h3>
-                <input 
-                  type="checkbox" 
-                  checked={selection.selected} 
-                  onChange={() => handleToggleSelect(product.id)}
-                  style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: 'var(--color-primary)' }}
-                />
               </div>
               
               <div className="product-options">
@@ -95,7 +79,6 @@ export default function ProductList({ onAddToCart, onBatchAddToCart }) {
                     className="select-input"
                     value={selection.targetType} 
                     onChange={(e) => handleTargetChange(product.id, e.target.value)}
-                    disabled={!selection.selected}
                   >
                     <option value={TARGET_TYPES.SELF}>본인구매 (월 1개 한정)</option>
                     <option value={TARGET_TYPES.FAMILY}>가족구매 (월 5개 한정)</option>
@@ -116,7 +99,7 @@ export default function ProductList({ onAddToCart, onBatchAddToCart }) {
                     <button 
                       className="qty-btn" 
                       onClick={() => handleQuantityChange(product.id, -1)}
-                      disabled={!selection.selected || selection.quantity <= 1}
+                      disabled={selection.quantity <= 0}
                     >
                       -
                     </button>
@@ -125,12 +108,10 @@ export default function ProductList({ onAddToCart, onBatchAddToCart }) {
                       className="number-input qty-input"
                       value={selection.quantity} 
                       readOnly 
-                      disabled={!selection.selected}
                     />
                     <button 
                       className="qty-btn" 
                       onClick={() => handleQuantityChange(product.id, 1)}
-                      disabled={!selection.selected}
                     >
                       +
                     </button>
@@ -141,7 +122,7 @@ export default function ProductList({ onAddToCart, onBatchAddToCart }) {
               <button 
                 className="btn btn-primary add-to-cart-btn"
                 onClick={() => onAddToCart(product, selection.targetType, selection.quantity)}
-                disabled={!selection.selected}
+                disabled={selection.quantity === 0}
               >
                 장바구니 담기
               </button>
@@ -239,13 +220,13 @@ export default function ProductList({ onAddToCart, onBatchAddToCart }) {
           className="btn btn-primary"
           style={{ width: '100%', maxWidth: '500px', padding: '0.9rem 1.5rem', fontSize: '1.1rem', fontWeight: 'bold', borderRadius: '8px' }}
           onClick={() => {
-            const itemsToAdd = PRODUCTS.filter(p => selections[p.id].selected).map(p => ({
+            const itemsToAdd = PRODUCTS.filter(p => selections[p.id].quantity > 0).map(p => ({
               product: p,
               targetType: selections[p.id].targetType,
               quantity: selections[p.id].quantity
             }));
             if (itemsToAdd.length === 0) {
-              alert("선택된 상품이 없습니다. 상품 우측의 체크박스를 선택해 주세요.");
+              alert("선택된 상품이 없습니다. 수량을 1개 이상으로 조절해 주세요.");
               return;
             }
             onBatchAddToCart(itemsToAdd);
