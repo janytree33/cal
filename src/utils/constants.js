@@ -40,7 +40,7 @@ export const PRODUCTS = [
   },
   {
     id: 4,
-    name: '딥모이스처 카머 (70ml)',
+    name: '딥모이스처 카머(70ml)',
     prices: {
       [TARGET_TYPES.SELF]: 5000,
       [TARGET_TYPES.FAMILY]: 7000,

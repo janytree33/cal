@@ -1,7 +1,7 @@
 import React from 'react';
 import './Cart.css';
 
-export default function Cart({ cartItems, onRemoveFromCart, onCheckout }) {
+export default function Cart({ cartItems, onRemoveFromCart, onCheckout, quoteHistory = [] }) {
   // 장바구니 총액 계산
   const totalPrice = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
@@ -44,14 +44,64 @@ export default function Cart({ cartItems, onRemoveFromCart, onCheckout }) {
               <span>최종 예상 총액</span>
               <span className="total-price text-gradient">{totalPrice.toLocaleString()} 원</span>
             </div>
+
+            <div className="bank-account-info" style={{ margin: '1rem 0', padding: '1rem', backgroundColor: 'rgba(56, 189, 248, 0.1)', borderRadius: '8px', border: '1px solid rgba(56, 189, 248, 0.2)', textAlign: 'center' }}>
+              <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>입금 계좌 안내</p>
+              <p style={{ margin: '0.2rem 0 0 0', fontWeight: 'bold', color: 'var(--color-text)' }}>신한은행 100-026-244778 (주)제니트리</p>
+            </div>
+
             <button 
               className="btn btn-primary checkout-btn"
               onClick={onCheckout}
             >
-              구매하기 (총 {cartItems.length}건)
+              견적서 복사하기 (총 {cartItems.length}건)
             </button>
           </div>
         </>
+      )}
+
+      {/* 견적 복사 이력 표시 영역 */}
+      {quoteHistory && quoteHistory.length > 0 && (
+        <div className="quote-history" style={{ marginTop: '2rem', borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
+          <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem', color: 'var(--color-text)' }}>최근 견적 복사 이력 (클릭 시 재복사)</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {quoteHistory.map((historyItem) => (
+              <button 
+                key={historyItem.id}
+                onClick={() => {
+                  navigator.clipboard.writeText(historyItem.text).then(() => {
+                    alert("이전 견적서가 복사되었습니다.\n\n" + historyItem.text);
+                  }).catch(() => {
+                    alert("견적서 복사에 실패했습니다.");
+                  });
+                }}
+                style={{
+                  textAlign: 'left',
+                  padding: '0.8rem',
+                  backgroundColor: 'var(--color-bg-secondary)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.3rem'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--color-primary)';
+                  e.currentTarget.style.backgroundColor = 'rgba(56, 189, 248, 0.05)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--color-border)';
+                  e.currentTarget.style.backgroundColor = 'var(--color-bg-secondary)';
+                }}
+              >
+                <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{historyItem.timeString}</span>
+                <span style={{ fontWeight: '500', color: 'var(--color-text)' }}>{historyItem.summary}</span>
+              </button>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );
