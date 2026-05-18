@@ -112,11 +112,38 @@ function App() {
 
   return (
     <div className="container">
-      <header style={{ textAlign: 'center', marginBottom: '3rem' }}>
-        <h1 className="text-gradient" style={{ fontSize: '2.5rem', fontWeight: '800' }}>
-          임직원 전용 화장품 복지몰
-        </h1>
-        <p style={{ color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>
+      <header style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        marginBottom: '3rem',
+        textAlign: 'center' 
+      }}>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          gap: '1rem',
+          marginBottom: '0.5rem',
+          flexWrap: 'wrap'
+        }}>
+          <img 
+            src="/logo.png" 
+            alt="제니트리 로고" 
+            style={{ 
+              width: '52px', 
+              height: '52px', 
+              objectFit: 'contain',
+              borderRadius: '50%',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+            }} 
+          />
+          <h1 className="text-gradient" style={{ fontSize: '2.5rem', fontWeight: '800', margin: 0 }}>
+            제니트리 임직원 전용 화장품 복지몰
+          </h1>
+        </div>
+        <p style={{ color: 'var(--color-text-muted)', marginTop: '0.5rem', fontSize: '1.05rem' }}>
           특별한 혜택으로 화장품을 만나보세요. (본인/가족/지인 할인 적용)
         </p>
       </header>
