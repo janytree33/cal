@@ -51,18 +51,18 @@ export default function ProductList({ onAddToCart, onBatchAddToCart }) {
       <p style={{ color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>
         원하시는 상품의 구매 대상과 수량을 선택한 후 장바구니에 담아주세요.
       </p>
-      
+
       <div className="product-grid">
         {PRODUCTS.map(product => {
           const selection = selections[product.id];
           const currentPrice = product.prices[selection.targetType];
 
           return (
-            <div 
-              key={product.id} 
-              className="card product-card" 
-              style={{ 
-                opacity: selection.quantity > 0 ? 1 : 0.65, 
+            <div
+              key={product.id}
+              className="card product-card"
+              style={{
+                opacity: selection.quantity > 0 ? 1 : 0.65,
                 transition: 'all 0.3s ease',
                 border: selection.quantity > 0 ? '2px solid var(--color-primary)' : '1px solid var(--color-border)'
               }}
@@ -70,14 +70,14 @@ export default function ProductList({ onAddToCart, onBatchAddToCart }) {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                 <h3 style={{ margin: 0, fontSize: '1.2rem' }}>{product.name}</h3>
               </div>
-              
+
               <div className="product-options">
                 {/* 구매 대상 선택 드롭다운 */}
                 <div className="option-group">
                   <label>구매 대상</label>
-                  <select 
+                  <select
                     className="select-input"
-                    value={selection.targetType} 
+                    value={selection.targetType}
                     onChange={(e) => handleTargetChange(product.id, e.target.value)}
                   >
                     <option value={TARGET_TYPES.SELF}>본인구매 (월 1개 한정)</option>
@@ -96,21 +96,21 @@ export default function ProductList({ onAddToCart, onBatchAddToCart }) {
                 <div className="option-group quantity-group">
                   <label>수량</label>
                   <div className="quantity-controls">
-                    <button 
-                      className="qty-btn" 
+                    <button
+                      className="qty-btn"
                       onClick={() => handleQuantityChange(product.id, -1)}
                       disabled={selection.quantity <= 0}
                     >
                       -
                     </button>
-                    <input 
-                      type="number" 
+                    <input
+                      type="number"
                       className="number-input qty-input"
-                      value={selection.quantity} 
-                      readOnly 
+                      value={selection.quantity}
+                      readOnly
                     />
-                    <button 
-                      className="qty-btn" 
+                    <button
+                      className="qty-btn"
                       onClick={() => handleQuantityChange(product.id, 1)}
                     >
                       +
@@ -118,8 +118,8 @@ export default function ProductList({ onAddToCart, onBatchAddToCart }) {
                   </div>
                 </div>
               </div>
- 
-              <button 
+
+              <button
                 className="btn btn-primary add-to-cart-btn"
                 onClick={() => onAddToCart(product, selection.targetType, selection.quantity)}
                 disabled={selection.quantity === 0}
@@ -193,17 +193,17 @@ export default function ProductList({ onAddToCart, onBatchAddToCart }) {
       </div>
 
       {/* 실시간 합계 및 일괄 장바구니 담기 영역 */}
-      <div 
-        className="product-list-summary card" 
-        style={{ 
-          marginTop: '2rem', 
-          padding: '1.5rem', 
-          backgroundColor: 'var(--color-bg-secondary)', 
-          border: '1px solid var(--color-border)', 
-          borderRadius: '12px', 
-          display: 'flex', 
-          flexDirection: 'column', 
-          alignItems: 'center', 
+      <div
+        className="product-list-summary card"
+        style={{
+          marginTop: '2rem',
+          padding: '1.5rem',
+          backgroundColor: 'var(--color-bg-secondary)',
+          border: '1px solid var(--color-border)',
+          borderRadius: '12px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
           gap: '1rem',
           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
         }}
@@ -216,7 +216,7 @@ export default function ProductList({ onAddToCart, onBatchAddToCart }) {
           <span>실시간 예상 합계:</span>
           <span className="text-gradient" style={{ fontSize: '1.6rem' }}>{selectedTotal.toLocaleString()}원</span>
         </div>
-        <button 
+        <button
           className="btn btn-primary"
           style={{ width: '100%', maxWidth: '500px', padding: '0.9rem 1.5rem', fontSize: '1.1rem', fontWeight: 'bold', borderRadius: '8px' }}
           onClick={() => {
