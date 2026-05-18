@@ -128,26 +128,17 @@ function App() {
           marginBottom: '0.5rem',
           flexWrap: 'wrap'
         }}>
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            viewBox="0 0 32 32" 
+          <img 
+            src="/logo.png" 
+            alt="제니트리 로고" 
             style={{ 
               width: '52px', 
               height: '52px', 
+              objectFit: 'contain',
               borderRadius: '50%',
               boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -1px rgba(0, 0, 0, 0.1)'
-            }}
-          >
-            <circle cx="16" cy="16" r="15" fill="url(#purpleHeaderGrad)" stroke="#a855f7" strokeWidth="0.5"/>
-            <defs>
-              <linearGradient id="purpleHeaderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#a855f7" />
-                <stop offset="100%" stopColor="#6366f1" />
-              </linearGradient>
-            </defs>
-            <text x="14" y="22" fontFamily="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" fontSize="18" fontWeight="900" fill="#ffffff" textAnchor="middle">j</text>
-            <text x="23" y="15" fontFamily="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" fontSize="13" fontWeight="900" fill="#ffffff" textAnchor="middle">+</text>
-          </svg>
+            }} 
+          />
           <h1 className="text-gradient" style={{ fontSize: '2.5rem', fontWeight: '800', margin: 0 }}>
             제니트리 임직원 전용 화장품 복지몰
           </h1>
