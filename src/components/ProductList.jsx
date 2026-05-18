@@ -148,6 +148,67 @@ export default function ProductList({ onAddToCart, onBatchAddToCart }) {
             </div>
           );
         })}
+
+        {/* 6번째 칸: 품목별/구매대상별 단가표 삽입 */}
+        <div className="price-chart-card animate-fade-in" style={{ animationDelay: '0.05s' }}>
+          <h3>💡 구매 대상별 단가표</h3>
+          <div className="price-chart-table-container">
+            <table className="price-chart-table">
+              <thead>
+                <tr>
+                  <th colSpan="2">품목</th>
+                  <th>규격</th>
+                  <th className="th-self">본인구매</th>
+                  <th className="th-family">가족구매</th>
+                  <th className="th-acquaintance">지인구매</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td rowSpan="3" className="brand-cell">앰플런스</td>
+                  <td>앰플</td>
+                  <td>50ml</td>
+                  <td className="cell-self">6,500</td>
+                  <td className="cell-family">9,500</td>
+                  <td className="cell-acquaintance">13,000</td>
+                </tr>
+                <tr>
+                  <td>크림</td>
+                  <td>75ml</td>
+                  <td className="cell-self">5,000</td>
+                  <td className="cell-family">7,000</td>
+                  <td className="cell-acquaintance">9,000</td>
+                </tr>
+                <tr>
+                  <td>버블폼</td>
+                  <td>150ml</td>
+                  <td className="cell-self">5,500</td>
+                  <td className="cell-family">9,500</td>
+                  <td className="cell-acquaintance">10,000</td>
+                </tr>
+                <tr>
+                  <td colSpan="2" className="brand-cell">딥모이스처 카머</td>
+                  <td>70ml</td>
+                  <td className="cell-self">5,000</td>
+                  <td className="cell-family">7,000</td>
+                  <td className="cell-acquaintance">9,000</td>
+                </tr>
+                <tr>
+                  <td colSpan="2" className="brand-cell">인텐시브 베리어 카머</td>
+                  <td>90ml</td>
+                  <td className="cell-self">6,000</td>
+                  <td className="cell-family">8,000</td>
+                  <td className="cell-acquaintance">10,000</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div className="price-chart-notes">
+            <span>※ 본인구매는 매달 1개 한정입니다.</span>
+            <span>※ 가족구매는 매달 5개 한정입니다.</span>
+            <span>※ 지인구매는 수량제한 없습니다.</span>
+          </div>
+        </div>
       </div>
 
       {/* 실시간 합계 및 일괄 장바구니 담기 영역 */}

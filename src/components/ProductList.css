@@ -101,3 +101,104 @@
 .add-to-cart-btn {
   width: 100%;
 }
+
+/* 단가표 카드 및 테이블 스타일 */
+.price-chart-card {
+  padding: 1rem;
+  background-color: var(--color-bg-secondary);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+.price-chart-card h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: var(--color-primary);
+  text-align: center;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.price-chart-table-container {
+  overflow-x: auto;
+  flex-grow: 1;
+  border-radius: 6px;
+}
+
+.price-chart-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.73rem;
+  text-align: center;
+  border: 1.5px solid #1e293b;
+  background-color: #ffffff;
+}
+
+.price-chart-table th,
+.price-chart-table td {
+  border: 1px solid #475569;
+  padding: 0.35rem 0.2rem;
+  vertical-align: middle;
+}
+
+.price-chart-table th {
+  background-color: #1e293b;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.price-chart-table th.th-self {
+  color: #facc15; /* yellow */
+}
+
+.price-chart-table th.th-family {
+  color: #22d3ee; /* cyan */
+}
+
+.price-chart-table th.th-acquaintance {
+  color: #f472b6; /* pink */
+}
+
+.price-chart-table td.brand-cell {
+  font-weight: bold;
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+.price-chart-table td.cell-self {
+  background-color: #fefde8; /* light yellow */
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.price-chart-table td.cell-family {
+  background-color: #ecfeff; /* light cyan */
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.price-chart-table td.cell-acquaintance {
+  background-color: #fff1f2; /* light pink */
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.price-chart-notes {
+  margin-top: auto;
+  padding: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.72rem;
+  font-weight: bold;
+  background-color: #1e293b;
+  border-radius: 6px;
+  border: 1px solid #334155;
+  color: #ffffff;
+}
+
